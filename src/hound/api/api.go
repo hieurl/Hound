@@ -8,6 +8,7 @@ import (
 	"hound/searcher"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -93,6 +94,17 @@ func parseAsBool(v string) bool {
 	return v == "true" || v == "1" || v == "fosho"
 }
 
+func repoMatchRegex(pattern string, idx map[string]*searcher.Searcher) []string {
+	var repos []string
+	for repo, _ := range idx {
+		matched, _ := regexp.MatchString(pattern, repo)
+		if matched == true {
+			repos = append(repos, repo)
+		}
+	}
+	return repos
+}
+
 func parseAsRepoList(v string, idx map[string]*searcher.Searcher) []string {
 	v = strings.TrimSpace(strings.ToLower(v))
 	var repos []string
@@ -103,13 +115,17 @@ func parseAsRepoList(v string, idx map[string]*searcher.Searcher) []string {
 		return repos
 	}
 
-	for _, repo := range strings.Split(v, ",") {
-		if idx[repo] == nil {
-			continue
+	if strings.Contains(v, ",") {
+		for _, repo := range strings.Split(v, ",") {
+			if idx[repo] == nil {
+				continue
+			}
+			repos = append(repos, repo)
 		}
-		repos = append(repos, repo)
+		return repos
+	} else {
+		return repoMatchRegex(v, idx)
 	}
-	return repos
 }
 
 func parseAsUintValue(sv string, min, max, def uint) uint {
