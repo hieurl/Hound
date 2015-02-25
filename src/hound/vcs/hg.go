@@ -16,7 +16,7 @@ func init() {
 
 type MercurialDriver struct{}
 
-func (g *MercurialDriver) HeadHash(dir string) (string, error) {
+func (g *MercurialDriver) HeadHash(dir string, branch string) (string, error) {
 	cmd := exec.Command(
 		"hg",
 		"log",
@@ -44,7 +44,7 @@ func (g *MercurialDriver) HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *MercurialDriver) Pull(dir string) (string, error) {
+func (g *MercurialDriver) Pull(dir string, branch string) (string, error) {
 	cmd := exec.Command("hg", "pull")
 	cmd.Dir = dir
 	err := cmd.Run()
@@ -52,10 +52,10 @@ func (g *MercurialDriver) Pull(dir string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadHash(dir, branch)
 }
 
-func (g *MercurialDriver) Clone(dir, url string) (string, error) {
+func (g *MercurialDriver) Clone(dir, url string, branch string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"hg",
@@ -68,5 +68,5 @@ func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadHash(dir, branch)
 }

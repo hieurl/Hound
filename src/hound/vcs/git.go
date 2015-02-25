@@ -15,11 +15,11 @@ func init() {
 
 type GitDriver struct{}
 
-func (g *GitDriver) HeadHash(dir string) (string, error) {
+func (g *GitDriver) HeadHash(dir string, branch string) (string, error) {
 	cmd := exec.Command(
 		"git",
 		"rev-parse",
-		"HEAD")
+		branch)
 	cmd.Dir = dir
 	r, err := cmd.StdoutPipe()
 	if err != nil {
@@ -40,22 +40,24 @@ func (g *GitDriver) HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *GitDriver) Pull(dir string) (string, error) {
-	cmd := exec.Command("git", "pull")
+func (g *GitDriver) Pull(dir string, branch string) (string, error) {
+	cmd := exec.Command("git", "pull", "origin", branch)
 	cmd.Dir = dir
 	err := cmd.Run()
 	if err != nil {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadHash(dir, branch)
 }
 
-func (g *GitDriver) Clone(dir, url string) (string, error) {
+func (g *GitDriver) Clone(dir, url string, branch string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"git",
 		"clone",
+		"-b",
+		branch,
 		url,
 		rep)
 	cmd.Dir = par
@@ -64,5 +66,5 @@ func (g *GitDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadHash(dir, branch)
 }

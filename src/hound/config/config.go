@@ -9,10 +9,12 @@ import (
 const (
 	defaultMsBetweenPoll = 30000
 	defaultVCS           = "git"
+	defaultBranch        = "master"
 )
 
 type Repo struct {
 	Url            string `json:"url"`
+	Branch         string `json:"branch"`
 	MsBetweenPolls int    `json:"ms-between-poll"`
 	VCS            string `json:"vcs"`
 }
@@ -48,6 +50,9 @@ func (c *Config) LoadFromFile(filename string) error {
 		}
 		if repo.VCS == "" {
 			repo.VCS = defaultVCS
+		}
+		if repo.Branch == "" {
+			repo.Branch = defaultBranch
 		}
 	}
 

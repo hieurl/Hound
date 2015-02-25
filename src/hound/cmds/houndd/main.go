@@ -174,11 +174,13 @@ func makeSearchers(
 			return nil, err
 		}
 	}
+	info_log.Printf("Config loaded")
 
 	// Now build and initialize a searcher for each repo.
 	// TODO(knorton): These could be done in parallel.
 	m := map[string]*searcher.Searcher{}
 	for name, repo := range cfg.Repos {
+		info_log.Printf("Repo loading")
 		path := filepath.Join(cfg.DbPath, name)
 
 		var s *searcher.Searcher
@@ -301,12 +303,12 @@ func main() {
 
 	idx, err := makeSearchers(&cfg, *flagStale)
 	if err != nil {
+		info_log.Printf("%s", err)
 		panic(err)
 	}
 
-
 	formattedAddress := *flagAddr
-	if (0 == strings.Index(*flagAddr, ":")) {
+	if 0 == strings.Index(*flagAddr, ":") {
 		formattedAddress = "localhost" + *flagAddr
 	}
 
